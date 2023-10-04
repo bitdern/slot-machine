@@ -1,6 +1,3 @@
-// 6. Give user winnings OR keep waged amount
-// 7. Play again OR No money left in user acct
-
 const prompt = require("prompt-sync")();
 
 // Global variables for slots
@@ -95,14 +92,58 @@ const transpose = (reels) => {
   for (let i = 0; i < ROWS; i++) {
     rows.push([]);
     for (let j = 0; j < COLS; j++) {
-      rows[i].push(reels[i][j]);
+      rows[i].push(reels[j][i]);
     }
   }
+
+  return rows;
 };
+
+// Step 5.2 --> print the spin
+const printRows = (rows) => {
+  for (const row of rows) {
+    let rowString = "";
+    for (const [i, symbol] of row.entries()) {
+      rowString += symbol;
+      if (i != row.length - 1) {
+        rowString += " | ";
+      }
+    }
+    console.log(rowString);
+  }
+};
+
+// Step 5.3 --> did user win?
+const getWinnings = (rows, bet, lines) => {
+  let winnings = 0;
+
+  for (let row = 0; row < lines; row++) {
+    const symbols = rows[row];
+    let allSame = true;
+
+    for (const symbol of symbols) {
+      if (symbol != symbols[0]) {
+        allSame = false;
+        break;
+      }
+    }
+
+    if (allSame) {
+      winnings += bet * SYMBOL_VALUES[symbols[0]];
+    }
+  }
+
+  return winnings;
+};
+
+// 6. Give user winnings OR keep waged amount
+// 7. Play again OR No money left in user acct
 
 // General note: functions can be written anywhere *above* where they are invoked (below this line)
 let balance = deposit();
 const numberOfLines = getNumberOfLines();
 const bet = getBet(balance, numberOfLines);
 const reels = spin();
-console.log(reels);
+const rows = transpose(reels);
+printRows(rows);
+const winnings = getWinnings(rows, bet, numberOfLines);
